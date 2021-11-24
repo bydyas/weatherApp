@@ -11,9 +11,20 @@ class WeatherApp:
         self.defaultFont = font.nametofont("TkDefaultFont")
         self.defaultFont.configure(family="Arial", size=12, weight="bold")
         self.create_widgets()
+        self.master.bind("<FocusIn>",self.deminimize_window) 
 
-    def move_bar(self, e):
+    def move_window(self,e):
         self.master.geometry(f'+{e.x_root}+{e.y_root}')
+   
+    def minimize_window(self):
+        self.master.attributes("-alpha",0)
+        self.master.minimized = True       
+
+    def deminimize_window(self, event):
+        self.master.focus() 
+        self.master.attributes("-alpha",1)
+        if  self.master.minimized == True:
+            self.master.minimized = False   
 
     def create_widgets(self):
         # create modified titlebar
@@ -21,10 +32,13 @@ class WeatherApp:
         self.titlebar = Frame(self.master, bg="#202124", bd=0, relief="raised")
         self.titlebar.pack(expand=1, fill=X)
         # bind the titlebar
-        self.titlebar.bind('<B1-Motion>', self.move_bar)
-        self.close_btn = Button(self.titlebar, text="X", bg="#202124", fg="#e8eaed", 
+        self.titlebar.bind('<B1-Motion>', self.move_window)
+
+        self.close_btn = Button(self.titlebar, text="  ×  ", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.master.quit)
-        
+        self.minimize_btn = Button(self.titlebar, text=' ߺ ', bg="#202124", fg="#e8eaed", 
+                                cursor="mouse", relief="sunken", bd=0, command=self.minimize_window)
+
         self.search_etr = Entry(self.titlebar, bg="#e8eaed", bd=0)
         self.search_btn = Button(self.titlebar, text="Search", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.search_city)
@@ -37,6 +51,7 @@ class WeatherApp:
         self.search_etr.pack(side=LEFT, padx=10) # search bar
         self.search_btn.pack(side=LEFT) # search btn
         self.close_btn.pack(side=RIGHT, padx=10) # close btn
+        self.minimize_btn.pack(side=RIGHT, pady=2) 
 
         self.locat_lbl.pack() # city
         self.icon.pack()
