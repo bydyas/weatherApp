@@ -12,6 +12,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# Notes
-# -- context menu: set the default city
