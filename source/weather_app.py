@@ -7,28 +7,41 @@ from urllib.request import urlopen
 
 class WeatherApp:
     def __init__(self, master: Tk):
-         # base app
         self.master = master
         self.defaultFont = font.nametofont("TkDefaultFont")
-        self.defaultFont.configure(family="Arial", size=19, weight=font.BOLD)
+        self.defaultFont.configure(family="Arial", size=12, weight="bold")
         self.create_widgets()
-        
+
+    def move_bar(self, e):
+        self.master.geometry(f'+{e.x_root}+{e.y_root}')
+
     def create_widgets(self):
-        # search for city
-        self.search_etr = Entry(self.master)
-        self.search_btn = Button(self.master, text="Search", command=self.search_city)
-        # items
-        self.locat_lbl = Label(self.master, bg="blue")
-        self.temp_lbl = Label(self.master, bg="blue")
-        self.weather_lbl = Label(self.master, bg="blue")
-        # image
-        self.icon = Label(self.master, bg="blue")
-        # add items
-        self.search_etr.pack()
-        self.search_btn.pack()
-        self.locat_lbl.pack()
-        self.temp_lbl.pack()
-        self.weather_lbl.pack()
+        # create modified titlebar
+        self.master.overrideredirect(True)
+        self.titlebar = Frame(self.master, bg="#202124", bd=0, relief="raised")
+        self.titlebar.pack(expand=1, fill=X)
+        # bind the titlebar
+        self.titlebar.bind('<B1-Motion>', self.move_bar)
+        self.close_btn = Button(self.titlebar, text="X", bg="#202124", fg="#e8eaed", 
+                                cursor="mouse", relief="sunken", bd=0, command=self.master.quit)
+        
+        self.search_etr = Entry(self.titlebar, bg="#e8eaed", bd=0)
+        self.search_btn = Button(self.titlebar, text="Search", bg="#202124", fg="#e8eaed", 
+                                cursor="mouse", relief="sunken", bd=0, command=self.search_city)
+        
+        self.locat_lbl = Label(self.master, font=("Arial", 22), bg="#202124", fg="#e8eaed")
+        self.temp_lbl = Label(self.master, font=("Arial", 22), bg="#202124", fg="#e8eaed")
+        self.weather_lbl = Label(self.master, bg="#202124", fg="#e8eaed")
+        self.icon = Label(self.master, bg="#202124")
+        
+        self.search_etr.pack(side=LEFT, padx=10) # search bar
+        self.search_btn.pack(side=LEFT) # search btn
+        self.close_btn.pack(side=RIGHT, padx=10) # close btn
+
+        self.locat_lbl.pack() # city
+        self.icon.pack()
+        self.temp_lbl.pack() # real temp
+        self.weather_lbl.pack() # description
     
     def create_icon(self, icon):
         # upload the icon
@@ -37,13 +50,14 @@ class WeatherApp:
         image = ImageTk.PhotoImage(temp_img)
         self.icon["image"] = image
         self.icon.image = image
-        self.icon.pack()
 
     def search_city(self):
+        # set city as argument for get_data
         self.get_data(city=self.search_etr.get())
         self.search_etr.delete(0, 'end')
     
     def get_data(self, city="Odessa"):
+        # get information with api
         url = "https://community-open-weather-map.p.rapidapi.com/weather"
         mode = "GET"
         querystring = {"q":{city},"lang":"en","units":"metric"}
@@ -57,7 +71,8 @@ class WeatherApp:
         self.render_data(response)
 
     def render_data(self, data):
+        # display given data
         self.locat_lbl["text"] = f"{data['name']},{data['sys']['country']}"
-        self.temp_lbl["text"] = f"Temp: {data['main']['temp']}\N{DEGREE SIGN}\nFeels like: {data['main']['feels_like']}\N{DEGREE SIGN}"
-        self.weather_lbl["text"] = f"Weather: {data['weather'][0]['description'].capitalize()}"
+        self.temp_lbl["text"] = f"{str(round(data['main']['temp'], 0))[:-2]} С\N{DEGREE SIGN}\n"
+        self.weather_lbl["text"] = f"{data['weather'][0]['description'].capitalize()}"
         self.create_icon(data["weather"][0]["icon"])

@@ -3,11 +3,11 @@ from source.weather_app import WeatherApp
 
 def main(): 
     root = Tk()
-    myApp = WeatherApp(root).get_data(city="Minsk")
+    myApp = WeatherApp(root).get_data()
     root.title("WeatherApp")
-    root.geometry("450x450")
+    root.geometry("420x280")
     root.resizable(False, False)
-    root.configure(bg="blue")
+    root.configure(bg="#202124")
     root.mainloop()
 
 if __name__ == '__main__':
