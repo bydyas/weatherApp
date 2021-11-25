@@ -4,6 +4,8 @@ from tkinter import Tk, font
 from io import BytesIO
 from PIL import Image, ImageTk
 from urllib.request import urlopen
+from datetime import date
+from time import ctime
 
 class WeatherApp:
     def __init__(self, master: Tk):
@@ -11,52 +13,42 @@ class WeatherApp:
         self.defaultFont = font.nametofont("TkDefaultFont")
         self.defaultFont.configure(family="Arial", size=12, weight="bold")
         self.create_widgets()
-        self.master.bind("<FocusIn>",self.deminimize_window) 
 
     def move_window(self,e):
         self.master.geometry(f'+{e.x_root}+{e.y_root}')
-   
-    def minimize_window(self):
-        self.master.attributes("-alpha",0)
-        self.master.minimized = True       
-
-    def deminimize_window(self, event):
-        self.master.focus() 
-        self.master.attributes("-alpha",1)
-        if  self.master.minimized == True:
-            self.master.minimized = False   
 
     def create_widgets(self):
         # create modified titlebar
         self.master.overrideredirect(True)
         self.titlebar = Frame(self.master, bg="#202124", bd=0, relief="raised")
-        self.titlebar.pack(expand=1, fill=X)
-        # bind the titlebar
         self.titlebar.bind('<B1-Motion>', self.move_window)
 
         self.close_btn = Button(self.titlebar, text="  ×  ", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.master.quit)
-        self.minimize_btn = Button(self.titlebar, text=' ߺ ', bg="#202124", fg="#e8eaed", 
-                                cursor="mouse", relief="sunken", bd=0, command=self.minimize_window)
-
         self.search_etr = Entry(self.titlebar, bg="#e8eaed", bd=0)
         self.search_btn = Button(self.titlebar, text="Search", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.search_city)
+        # main frame
+        self.mainFrame = Frame(self.master, bg="#202124", bd=0, relief="raised")
+        self.weather_lbl = Label(self.mainFrame, bg="#202124", fg="#e8eaed")
+        self.icon = Label(self.mainFrame, bg="#202124")
+        self.locat_lbl = Label(self.mainFrame, font=("Arial", 22), bg="#202124", fg="#e8eaed")
+        self.temp_lbl = Label(self.mainFrame, font=("Arial", 22), bg="#202124")
+        self.date = Label(self.mainFrame, font=("Arial", 12), bg="#202124", fg="#9aa0a6")
+        self.details = Label(self.mainFrame, font=("Arial", 12), bg="#202124", fg="#e8eaed", anchor="e", justify=LEFT)
         
-        self.locat_lbl = Label(self.master, font=("Arial", 22), bg="#202124", fg="#e8eaed")
-        self.temp_lbl = Label(self.master, font=("Arial", 22), bg="#202124", fg="#e8eaed")
-        self.weather_lbl = Label(self.master, bg="#202124", fg="#e8eaed")
-        self.icon = Label(self.master, bg="#202124")
-        
-        self.search_etr.pack(side=LEFT, padx=10) # search bar
-        self.search_btn.pack(side=LEFT) # search btn
-        self.close_btn.pack(side=RIGHT, padx=10) # close btn
-        self.minimize_btn.pack(side=RIGHT, pady=2) 
+        self.titlebar.pack(expand=True, fill=X, anchor=N)
+        self.search_etr.pack(side=LEFT, padx=10)
+        self.search_btn.pack(side=LEFT) 
+        self.close_btn.pack(side=RIGHT, padx=10) 
 
-        self.locat_lbl.pack() # city
-        self.icon.pack()
-        self.temp_lbl.pack() # real temp
-        self.weather_lbl.pack() # description
+        self.mainFrame.pack(expand=True, fill=BOTH, anchor=N)
+        self.locat_lbl.grid(row=0, column=0, padx=10)
+        self.date.grid(row=0, column=1)
+        self.icon.grid(row=1, column=0)
+        self.weather_lbl.grid(row=2, column=0)
+        self.temp_lbl.grid(row=1, column=1, sticky=S)
+        self.details.grid(row=1, column=2, sticky=E)
     
     def create_icon(self, icon):
         # upload the icon
@@ -83,11 +75,32 @@ class WeatherApp:
 
         response = requests.request(mode, url, headers=headers, params=querystring)
         response = response.json()
+        print(response)
         self.render_data(response)
+
+    def set_color_by_temp(self, data):
+        temp = int(str(round(data['main']['feels_like'], 0))[:-2])
+        if temp >= 30:
+            self.temp_lbl["fg"] = "red"
+        elif temp >= 20 and temp < 30:
+            self.temp_lbl["fg"] = "orange"
+        elif temp >= 10 and temp < 20:
+            self.temp_lbl["fg"] = "yellow"
+        elif temp < 10 and temp > 0:
+            self.temp_lbl["fg"] = "lightblue"
+        elif temp <= 0:
+            self.temp_lbl["fg"] = "darkblue"
+        return f'{temp} С\N{DEGREE SIGN}'
 
     def render_data(self, data):
         # display given data
         self.locat_lbl["text"] = f"{data['name']},{data['sys']['country']}"
-        self.temp_lbl["text"] = f"{str(round(data['main']['temp'], 0))[:-2]} С\N{DEGREE SIGN}\n"
+        self.temp_lbl["text"] = f"{self.set_color_by_temp(data=data)}\n"
         self.weather_lbl["text"] = f"{data['weather'][0]['description'].capitalize()}"
         self.create_icon(data["weather"][0]["icon"])
+        self.date["text"] = date.today().strftime("%b-%d-%Y")
+        self.details["text"] = (f"Feels like: {str(round(data['main']['feels_like'], 0))[:-2]} С\N{DEGREE SIGN}\n"+
+                               f"Wind: {data['wind']['speed']} km/h\n"+
+                               f"Humidity: {data['main']['humidity']}%\n"+
+                               f"Sunrise: {ctime(data['sys']['sunrise'])[11:-5]}\n"+
+                               f"Sunset: {ctime(data['sys']['sunset'])[11:-5]}")
