@@ -1,11 +1,12 @@
 import requests
 from tkinter import *
-from tkinter import Tk, font
+from tkinter import Tk, font, messagebox
 from io import BytesIO
 from PIL import Image, ImageTk
 from urllib.request import urlopen
 from datetime import date
 from time import ctime
+from source.config import API
 
 class WeatherApp:
     def __init__(self, master: Tk):
@@ -70,15 +71,17 @@ class WeatherApp:
         querystring = {"q":{city},"lang":"en","units":"metric"}
         headers = {
             'x-rapidapi-host': "community-open-weather-map.p.rapidapi.com",
-            'x-rapidapi-key': "32c4ac93d2msh32e94c84194df3fp166d6ajsnec3e473f2c4e"
+            'x-rapidapi-key': API
         }
-
-        response = requests.request(mode, url, headers=headers, params=querystring)
-        response = response.json()
-        print(response)
-        self.render_data(response)
+        try:
+            response = requests.request(mode, url, headers=headers, params=querystring)
+            response = response.json()
+            self.render_data(response)
+        except:
+            messagebox.showerror("Error", f"The city <{city}> does not exist in our database")
 
     def set_color_by_temp(self, data):
+        # setting the color (from darkblue as coldest to red as hottest) to temp_lbl
         temp = int(str(round(data['main']['feels_like'], 0))[:-2])
         if temp >= 30:
             self.temp_lbl["fg"] = "red"
