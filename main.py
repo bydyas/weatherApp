@@ -7,6 +7,8 @@ def main():
     root.title("WeatherApp")
     root.resizable(False, False)
     root.configure(bg="#202124")
+    # icon
+    root.iconbitmap('source/icon.ico')
     # always on top
     root.attributes('-topmost', True)
     root.update()
