@@ -20,9 +20,11 @@ class WeatherApp:
     def pin_window(self):       
         # pin the window by cliked btn
         if self.pin_is_on:
+            self.pin_btn["fg"] = "red"
             self.titlebar.unbind('<B1-Motion>')
             self.pin_is_on = False
         else:
+            self.pin_btn["fg"] = "#e8eaed"
             self.titlebar.bind('<B1-Motion>', self.move_window)
             self.pin_is_on = True
 
