@@ -9,11 +9,22 @@ from time import ctime
 from source.config import API
 
 class WeatherApp:
+    pin_is_on = True
+
     def __init__(self, master: Tk):
         self.master = master
         self.defaultFont = font.nametofont("TkDefaultFont")
         self.defaultFont.configure(family="Arial", size=12, weight="bold")
         self.create_widgets()
+
+    def pin_window(self):       
+        # pin the window by cliked btn
+        if self.pin_is_on:
+            self.titlebar.unbind('<B1-Motion>')
+            self.pin_is_on = False
+        else:
+            self.titlebar.bind('<B1-Motion>', self.move_window)
+            self.pin_is_on = True
 
     def move_window(self,e):
         self.master.geometry(f'+{e.x_root}+{e.y_root}')
@@ -24,6 +35,8 @@ class WeatherApp:
         self.titlebar = Frame(self.master, bg="#202124", bd=0, relief="raised")
         self.titlebar.bind('<B1-Motion>', self.move_window)
 
+        self.pin_btn = Button(self.titlebar, text="  📍  ", bg="#202124", fg="#e8eaed", 
+                                cursor="mouse", relief="sunken", bd=0, command=self.pin_window)
         self.close_btn = Button(self.titlebar, text="  ×  ", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.master.quit)
         self.search_etr = Entry(self.titlebar, bg="#e8eaed", bd=0)
@@ -41,7 +54,8 @@ class WeatherApp:
         self.titlebar.pack(expand=True, fill=X, anchor=N)
         self.search_etr.pack(side=LEFT, padx=10)
         self.search_btn.pack(side=LEFT) 
-        self.close_btn.pack(side=RIGHT, padx=10) 
+        self.close_btn.pack(side=RIGHT, padx=10)
+        self.pin_btn.pack(side=RIGHT) 
 
         self.mainFrame.pack(expand=True, fill=BOTH, anchor=N)
         self.locat_lbl.grid(row=0, column=0, padx=10)

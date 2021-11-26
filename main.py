@@ -3,10 +3,14 @@ from source.weather_app import WeatherApp
 
 def main(): 
     root = Tk()
-    myApp = WeatherApp(root).get_data()
+    app = WeatherApp(root).get_data()
     root.title("WeatherApp")
     root.resizable(False, False)
     root.configure(bg="#202124")
+    # always on top
+    root.attributes('-topmost', True)
+    root.update()
+    root.attributes('-topmost', False)
     # center the window
     w = root.winfo_screenwidth()
     h = root.winfo_screenheight()
