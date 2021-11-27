@@ -10,6 +10,7 @@ from source.config import API
 
 class WeatherApp:
     pin_is_on = True
+    eye_is_on = True
 
     def __init__(self, master: Tk):
         self.master = master
@@ -17,16 +18,37 @@ class WeatherApp:
         self.defaultFont.configure(family="Arial", size=12, weight="bold")
         self.create_widgets()
 
+    def glass_window(self):
+         # make transparent window
+        if self.eye_is_on:
+            self.master.wm_attributes("-transparentcolor", "#202124")
+            self.eye_is_on = False
+            # remove some elements 
+            self.pin_btn.pack_forget()
+            self.search_etr.pack_forget()
+            self.search_btn.pack_forget()
+        else:
+            self.master.wm_attributes("-transparentcolor", "green")
+            self.eye_is_on = True
+            # add these elements
+            self.pin_btn.pack(side=RIGHT)
+            self.search_etr.pack(side=LEFT, padx=10)
+            self.search_btn.pack(side=LEFT) 
+
     def pin_window(self):       
-        # pin the window by cliked btn
+        # pin the window
         if self.pin_is_on:
             self.pin_btn["fg"] = "red"
             self.titlebar.unbind('<B1-Motion>')
             self.pin_is_on = False
+            # add eye btn 
+            self.eye_btn.pack(side=RIGHT)
         else:
             self.pin_btn["fg"] = "#e8eaed"
             self.titlebar.bind('<B1-Motion>', self.move_window)
             self.pin_is_on = True
+            # remove eye btn 
+            self.eye_btn.pack_forget()
 
     def move_window(self,e):
         self.master.geometry(f'+{e.x_root}+{e.y_root}')
@@ -37,6 +59,8 @@ class WeatherApp:
         self.titlebar = Frame(self.master, bg="#202124", bd=0, relief="raised")
         self.titlebar.bind('<B1-Motion>', self.move_window)
 
+        self.eye_btn = Button(self.titlebar, text="  👁  ", bg="#202124", fg="#e8eaed", 
+                                cursor="mouse", relief="sunken", bd=0, command=self.glass_window)
         self.pin_btn = Button(self.titlebar, text="  📍  ", bg="#202124", fg="#e8eaed", 
                                 cursor="mouse", relief="sunken", bd=0, command=self.pin_window)
         self.close_btn = Button(self.titlebar, text="  ×  ", bg="#202124", fg="#e8eaed", 
