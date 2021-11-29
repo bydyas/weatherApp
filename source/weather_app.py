@@ -143,7 +143,7 @@ class WeatherApp:
         self.create_icon(data["weather"][0]["icon"])
         self.date["text"] = date.today().strftime("%b-%d-%Y")
         self.details["text"] = (f"Feels like: {str(round(data['main']['feels_like'], 0))[:-2]} С\N{DEGREE SIGN}\n"+
-                               f"Wind: {data['wind']['speed']} km/h\n"+
+                               f"Wind: {data['wind']['speed']} m/s\n"+
                                f"Humidity: {data['main']['humidity']}%\n"+
                                f"Sunrise: {ctime(data['sys']['sunrise'])[11:-5]}\n"+
                                f"Sunset: {ctime(data['sys']['sunset'])[11:-5]}")

@@ -16,8 +16,8 @@ def main():
     # center the window
     w = root.winfo_screenwidth()
     h = root.winfo_screenheight()
-    x = (w / 2) - (450 / 2)
-    y = (h / 2) - (410 / 2)
+    x = (w / 2) - (400 / 2)
+    y = (h / 2) - (200 / 2)
     root.geometry(f'{400}x{200}+{int(x)}+{int(y)}')
     
     root.mainloop()
